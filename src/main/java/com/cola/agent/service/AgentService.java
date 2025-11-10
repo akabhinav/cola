@@ -2,6 +2,9 @@ package com.cola.agent.service;
 
 import com.cola.agent.model.Conversation;
 import com.cola.agent.model.Project;
+import com.cola.agent.rag.model.CodeContext;
+import com.cola.agent.rag.service.ContextAssemblyService;
+import com.cola.agent.rag.service.SemanticSearchService;
 import com.cola.agent.repository.ConversationRepository;
 import com.cola.agent.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -25,7 +29,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Service for AI agent interactions and code generation.
+ * Service for AI agent interactions and code generation with RAG support.
  */
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,13 @@ public class AgentService {
 
     private final ConversationRepository conversationRepository;
     private final ProjectRepository projectRepository;
+
+    // RAG Services
+    private final ContextAssemblyService contextAssemblyService;
+    private final SemanticSearchService semanticSearchService;
+
+    @Value("${cola.rag.enabled:true}")
+    private boolean ragEnabled;
 
     private static final String SYSTEM_PROMPT = """
         You are an expert software architect and developer assistant. Your role is to:
@@ -57,7 +68,7 @@ public class AgentService {
         """;
 
     /**
-     * Send a message to the AI agent and get a response.
+     * Send a message to the AI agent and get a response with RAG context.
      */
     @Transactional
     public String chat(UUID projectId, String userMessage, UUID userId) {
@@ -70,12 +81,13 @@ public class AgentService {
         // Save user message
         saveConversation(projectId, userMessage, Conversation.Role.USER);
 
-        // Get conversation history
-        List<Conversation> history = conversationRepository.findByProjectIdOrderByTimestampAsc(projectId);
+        // Build enhanced prompt with RAG context
+        String enhancedPrompt = buildEnhancedPrompt(projectId, userMessage, project);
 
-        // Build messages with context
-        List<Message> messages = buildMessagesFromHistory(history);
-        messages.add(new UserMessage(userMessage));
+        // Build messages
+        List<Message> messages = new ArrayList<>();
+        messages.add(new SystemMessage(SYSTEM_PROMPT));
+        messages.add(new UserMessage(enhancedPrompt));
 
         // Call AI
         Prompt prompt = new Prompt(messages);
@@ -85,8 +97,57 @@ public class AgentService {
         // Save assistant response
         saveConversation(projectId, assistantMessage, Conversation.Role.ASSISTANT);
 
-        log.info("Chat response generated for project {}", projectId);
+        log.info("Chat response generated for project {} (RAG: {})", projectId, ragEnabled);
         return assistantMessage;
+    }
+
+    /**
+     * Build enhanced prompt with RAG context.
+     */
+    private String buildEnhancedPrompt(UUID projectId, String userMessage, Project project) {
+        if (!ragEnabled || !semanticSearchService.isProjectIndexed(projectId)) {
+            log.debug("RAG not available, using standard prompt");
+            return userMessage;
+        }
+
+        try {
+            // Get relevant context using RAG
+            CodeContext context = contextAssemblyService.buildContext(projectId, userMessage);
+
+            StringBuilder enhancedPrompt = new StringBuilder();
+
+            // Add project information
+            enhancedPrompt.append("# Project Context\n\n");
+            enhancedPrompt.append(String.format("Project: %s\n", project.getName()));
+            if (project.getDescription() != null) {
+                enhancedPrompt.append(String.format("Description: %s\n", project.getDescription()));
+            }
+            enhancedPrompt.append(String.format("Language: %s\n", project.getLanguage()));
+            if (project.getFramework() != null) {
+                enhancedPrompt.append(String.format("Framework: %s\n", project.getFramework()));
+            }
+            enhancedPrompt.append("\n");
+
+            // Add relevant code context
+            String contextStr = context.formatForPrompt();
+            if (!contextStr.isEmpty()) {
+                enhancedPrompt.append(contextStr);
+                enhancedPrompt.append("\n");
+            }
+
+            // Add user's actual question
+            enhancedPrompt.append("# User Question\n\n");
+            enhancedPrompt.append(userMessage);
+
+            log.debug("Enhanced prompt with {} chunks, ~{} tokens",
+                context.getRelevantChunks().size(), context.getTotalTokens());
+
+            return enhancedPrompt.toString();
+
+        } catch (Exception e) {
+            log.error("Error building RAG context, falling back to standard prompt", e);
+            return userMessage;
+        }
     }
 
     /**

@@ -34,6 +34,25 @@ spring:
     locations: classpath:db/migration
     schemas: public
 
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000 # 30 minutes
+      cache-null-values: false
+
   # Spring AI Configuration
   ai:
     anthropic:
@@ -140,6 +159,45 @@ cola:
     s3:
       bucket: ${S3_BUCKET:}
       region: ${S3_REGION:us-east-1}
+
+  # RAG (Retrieval-Augmented Generation) settings
+  rag:
+    enabled: true
+    # Vector database configuration
+    vector-db:
+      provider: ${VECTOR_DB_PROVIDER:pinecone} # pinecone, weaviate, or local
+      pinecone:
+        api-key: ${PINECONE_API_KEY:}
+        environment: ${PINECONE_ENVIRONMENT:us-west1-gcp}
+        index-name: ${PINECONE_INDEX:cola-code-index}
+        dimension: 1536 # text-embedding-3-small dimension
+      local:
+        storage-path: ${LOCAL_VECTOR_DB_PATH:./vector-db}
+    # Embedding configuration
+    embeddings:
+      provider: openai
+      model: text-embedding-3-small
+      dimension: 1536
+      batch-size: 100
+      cache-enabled: true
+      cache-ttl-minutes: 60
+    # Code chunking configuration
+    chunking:
+      max-chunk-size: 1000 # tokens
+      overlap-size: 100
+      min-chunk-size: 100
+    # Context retrieval configuration
+    retrieval:
+      top-k: 10 # Number of chunks to retrieve
+      similarity-threshold: 0.7
+      max-context-tokens: 80000 # Leave room for response
+      reranking-enabled: true
+    # Background indexing
+    indexing:
+      enabled: true
+      auto-index-on-project-create: true
+      batch-size: 50
+      parallel-threads: 3
 
 # Logging Configuration
 logging:
