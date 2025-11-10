@@ -1,0 +1,86 @@
+# COLA Agent Platform - Git Ignore
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.metadata
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+/log/
+
+# Application
+cola-projects/
+storage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Spring Boot
+spring-shell.log
+
+# Database
+*.db
+*.sqlite
+
+# Secrets
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# Compiled
+*.class
+*.jar
+*.war
+*.ear
+
+# Test
+.test/
+coverage/
+
+# Temporary
+*.tmp
+*.temp
+*.bak

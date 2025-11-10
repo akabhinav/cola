@@ -1,0 +1,169 @@
+spring:
+  application:
+    name: cola-agent-platform
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:cola_db}
+    username: ${DB_USERNAME:cola_user}
+    password: ${DB_PASSWORD:cola_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+
+  # Spring AI Configuration
+  ai:
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      chat:
+        enabled: true
+        options:
+          model: claude-3-5-sonnet-20241022
+          temperature: 0.7
+          max-tokens: 4096
+          top-p: 1.0
+
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        enabled: true
+        options:
+          model: gpt-4-turbo-preview
+          temperature: 0.7
+          max-tokens: 4096
+
+  # Security
+  security:
+    jwt:
+      secret: ${JWT_SECRET:cola-secret-key-please-change-in-production-min-256-bits}
+      expiration: 86400000 # 24 hours in milliseconds
+
+  # File Upload
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Application Configuration
+cola:
+  agent:
+    # Primary AI provider (anthropic or openai)
+    primary-provider: anthropic
+    # Enable streaming responses
+    streaming-enabled: true
+    # Maximum context window tokens
+    max-context-tokens: 128000
+    # Code generation settings
+    code-generation:
+      max-retries: 3
+      timeout-seconds: 120
+    # Compilation settings
+    compilation:
+      docker-enabled: true
+      timeout-seconds: 300
+      supported-languages:
+        - java
+        - python
+        - javascript
+        - typescript
+        - go
+    # Deployment settings
+    deployment:
+      docker-registry: ${DOCKER_REGISTRY:localhost:5000}
+      kubernetes-enabled: ${KUBERNETES_ENABLED:false}
+      kubernetes-namespace: ${KUBERNETES_NAMESPACE:cola-deployments}
+
+  # Security settings
+  security:
+    rate-limit:
+      enabled: true
+      requests-per-minute: 60
+    cors:
+      allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+  # File storage settings
+  storage:
+    type: ${STORAGE_TYPE:local} # local or s3
+    local:
+      base-path: ${STORAGE_PATH:./cola-projects}
+    s3:
+      bucket: ${S3_BUCKET:}
+      region: ${S3_REGION:us-east-1}
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.cola.agent: DEBUG
+    org.springframework.ai: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/cola-agent.log
+    max-size: 10MB
+    max-history: 30
+
+# Springdoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha

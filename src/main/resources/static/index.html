@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COLA - Coding Agent Platform</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>COLA Agent</span>
+            </div>
+            <div class="project-name" id="projectName">My Project</div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn" id="notificationBtn">
+                <i class="fas fa-bell"></i>
+            </button>
+            <button class="icon-btn" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <div class="user-menu">
+                <i class="fas fa-user-circle"></i>
+                <span>Developer</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="projects">
+                    <i class="fas fa-folder"></i>
+                    <span>Projects</span>
+                </button>
+                <button class="nav-item" data-view="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Chat</span>
+                </button>
+                <button class="nav-item" data-view="code">
+                    <i class="fas fa-code"></i>
+                    <span>Code Editor</span>
+                </button>
+                <button class="nav-item" data-view="console">
+                    <i class="fas fa-terminal"></i>
+                    <span>Console</span>
+                </button>
+                <button class="nav-item" data-view="deploy">
+                    <i class="fas fa-rocket"></i>
+                    <span>Deployment</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-primary new-project-btn" id="newProjectBtn">
+                    <i class="fas fa-plus"></i> New Project
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div class="view active" id="dashboardView">
+                <h1>Dashboard</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-folder stat-icon"></i>
+                        <div class="stat-info">
+                            <h3 id="projectCount">0</h3>
+                            <p>Active Projects</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-code stat-icon"></i>
+                        <div class="stat-info">
+                            <h3 id="fileCount">0</h3>
+                            <p>Generated Files</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle stat-icon success"></i>
+                        <div class="stat-info">
+                            <h3 id="successCount">0</h3>
+                            <p>Successful Builds</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-rocket stat-icon"></i>
+                        <div class="stat-info">
+                            <h3 id="deployCount">0</h3>
+                            <p>Deployments</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-section">
+                    <h2>Recent Projects</h2>
+                    <div id="recentProjects" class="project-list">
+                        <!-- Projects will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects View -->
+            <div class="view" id="projectsView">
+                <div class="view-header">
+                    <h1>My Projects</h1>
+                    <button class="btn btn-primary" id="createProjectBtn">
+                        <i class="fas fa-plus"></i> Create Project
+                    </button>
+                </div>
+                <div id="projectsList" class="project-list">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Chat View -->
+            <div class="view" id="chatView">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2>AI Assistant</h2>
+                        <div class="chat-status">
+                            <span class="status-dot online"></span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Hello! I'm COLA, your AI coding assistant. How can I help you today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <textarea
+                            id="chatInput"
+                            class="chat-input"
+                            placeholder="Type your message... (Press Shift+Enter for new line)"
+                            rows="1"
+                        ></textarea>
+                        <button class="btn btn-primary send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Editor View -->
+            <div class="view" id="codeView">
+                <div class="code-editor-container">
+                    <div class="editor-header">
+                        <div class="file-tabs" id="fileTabs">
+                            <div class="file-tab active">
+                                <span>Welcome.md</span>
+                                <i class="fas fa-times close-tab"></i>
+                            </div>
+                        </div>
+                        <div class="editor-actions">
+                            <button class="icon-btn" title="Save">
+                                <i class="fas fa-save"></i>
+                            </button>
+                            <button class="icon-btn" title="Download">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="editor-content">
+                        <div class="file-tree">
+                            <h3>Project Files</h3>
+                            <div id="fileTree">
+                                <!-- File tree will be populated here -->
+                            </div>
+                        </div>
+                        <div class="code-editor" id="codeEditor">
+                            <pre><code># Welcome to COLA Agent Platform
+
+Start by creating a new project or chatting with the AI assistant!</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console View -->
+            <div class="view" id="consoleView">
+                <div class="console-container">
+                    <div class="console-header">
+                        <h2>Execution Console</h2>
+                        <div class="console-actions">
+                            <button class="icon-btn" id="clearConsole" title="Clear">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="icon-btn" id="exportLogs" title="Export Logs">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="console-output" id="consoleOutput">
+                        <div class="log-entry info">
+                            <span class="timestamp">[2025-01-10 10:00:00]</span>
+                            <span class="message">Console initialized. Ready for commands.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deployment View -->
+            <div class="view" id="deployView">
+                <div class="view-header">
+                    <h1>Deployments</h1>
+                    <button class="btn btn-primary" id="deployBtn">
+                        <i class="fas fa-rocket"></i> Deploy Project
+                    </button>
+                </div>
+                <div id="deploymentsList" class="deployments-list">
+                    <!-- Deployments will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Status Bar -->
+    <footer class="status-bar">
+        <div class="status-left">
+            <span class="status-item">
+                <i class="fas fa-circle status-indicator"></i>
+                <span id="agentStatus">Agent: Ready</span>
+            </span>
+            <span class="status-item">
+                <i class="fas fa-database"></i>
+                <span>Connected</span>
+            </span>
+        </div>
+        <div class="status-right">
+            <span class="status-item">
+                <i class="fas fa-memory"></i>
+                <span>Memory: 45%</span>
+            </span>
+            <span class="status-item">
+                <i class="fas fa-microchip"></i>
+                <span>CPU: 23%</span>
+            </span>
+        </div>
+    </footer>
+
+    <!-- Modal for creating new project -->
+    <div class="modal" id="createProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Project</h2>
+                <button class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="createProjectForm">
+                <div class="form-group">
+                    <label for="projectNameInput">Project Name</label>
+                    <input type="text" id="projectNameInput" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescInput">Description</label>
+                    <textarea id="projectDescInput" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectLangSelect">Language</label>
+                    <select id="projectLangSelect" required>
+                        <option value="java">Java</option>
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="go">Go</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="projectFrameworkInput">Framework (Optional)</label>
+                    <input type="text" id="projectFrameworkInput" placeholder="Spring Boot, React, etc.">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

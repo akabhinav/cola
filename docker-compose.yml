@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: cola-postgres
+    environment:
+      POSTGRES_DB: cola_db
+      POSTGRES_USER: cola_user
+      POSTGRES_PASSWORD: cola_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cola_user -d cola_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cola-network
+    restart: unless-stopped
+
+  # COLA Agent Application
+  cola-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cola-agent
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cola_db
+      DB_USERNAME: cola_user
+      DB_PASSWORD: cola_password
+
+      # AI Configuration
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+      # Security
+      JWT_SECRET: ${JWT_SECRET:-cola-jwt-secret-change-in-production-min-256-bits-required}
+
+      # Application
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
+
+      # Storage
+      STORAGE_TYPE: local
+      STORAGE_PATH: /app/cola-projects
+
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:8080}
+
+      # Docker (for nested containers - requires privileged mode or docker socket)
+      DOCKER_HOST: unix:///var/run/docker.sock
+
+    ports:
+      - "8080:8080"
+    volumes:
+      - cola_projects:/app/cola-projects
+      - cola_logs:/app/logs
+      # Mount Docker socket for container management (use with caution)
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cola-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Prometheus (Optional - for monitoring)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cola-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - cola-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # Grafana (Optional - for dashboards)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cola-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - cola-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+networks:
+  cola-network:
+    driver: bridge
+    name: cola-network
+
+volumes:
+  postgres_data:
+    name: cola-postgres-data
+  cola_projects:
+    name: cola-projects
+  cola_logs:
+    name: cola-logs
+  prometheus_data:
+    name: cola-prometheus-data
+  grafana_data:
+    name: cola-grafana-data
