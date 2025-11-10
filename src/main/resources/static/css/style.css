@@ -873,4 +873,202 @@ form {
     .status-text {
         display: none;
     }
+
+    .terminal-sidebar {
+        display: none;
+    }
+
+    .terminal-main {
+        flex: 1;
+    }
+}
+
+/* Terminal Styles */
+.terminal-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.terminal-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.terminal-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.terminal-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.terminal-sidebar {
+    width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    padding: var(--spacing-md);
+    overflow-y: auto;
+}
+
+.terminal-sidebar h3 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-commands, .command-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.quick-command-item, .suggestion-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.quick-command-item:hover, .suggestion-item:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary);
+}
+
+.command-text, .suggestion-cmd {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--code-blue);
+    margin-bottom: 4px;
+}
+
+.command-desc, .suggestion-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.suggestion-confidence {
+    font-size: 0.7rem;
+    color: var(--success);
+    margin-top: 4px;
+}
+
+.terminal-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.xterm-container {
+    flex: 1;
+    padding: var(--spacing-md);
+    overflow: auto;
+}
+
+.nl-command-input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-secondary);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    min-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.nl-input-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.nl-input-header span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.close-nl-input {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.close-nl-input:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.nl-command-input input {
+    width: 100%;
+    padding: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.nl-command-input input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.command-explanation {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding: var(--spacing-md);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.command-explanation h4 {
+    color: var(--primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.command-explanation p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.command-explanation .warning {
+    color: var(--warning);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.command-explanation .warning i {
+    color: var(--warning);
 }

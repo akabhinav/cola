@@ -202,22 +202,48 @@
 
             <!-- Console View -->
             <div class="view" id="consoleView">
-                <div class="console-container">
-                    <div class="console-header">
-                        <h2>Execution Console</h2>
-                        <div class="console-actions">
-                            <button class="icon-btn" id="clearConsole" title="Clear">
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <h2>AI-Powered Terminal</h2>
+                        <div class="terminal-actions">
+                            <button class="icon-btn" id="nlCommandBtn" title="Natural Language Command (Ctrl+K)">
+                                <i class="fas fa-magic"></i>
+                            </button>
+                            <button class="icon-btn" id="commandSuggestionsBtn" title="AI Suggestions">
+                                <i class="fas fa-lightbulb"></i>
+                            </button>
+                            <button class="icon-btn" id="clearTerminal" title="Clear">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <button class="icon-btn" id="exportLogs" title="Export Logs">
-                                <i class="fas fa-download"></i>
+                            <button class="icon-btn" id="terminalSettings" title="Settings">
+                                <i class="fas fa-cog"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="console-output" id="consoleOutput">
-                        <div class="log-entry info">
-                            <span class="timestamp">[2025-01-10 10:00:00]</span>
-                            <span class="message">Console initialized. Ready for commands.</span>
+                    <div class="terminal-content">
+                        <div class="terminal-sidebar">
+                            <h3>Quick Commands</h3>
+                            <div id="quickCommands" class="quick-commands">
+                                <!-- Quick commands will be populated here -->
+                            </div>
+                            <h3>Suggestions</h3>
+                            <div id="commandSuggestions" class="command-suggestions">
+                                <!-- AI suggestions will appear here -->
+                            </div>
+                        </div>
+                        <div class="terminal-main">
+                            <div id="xterm" class="xterm-container"></div>
+                            <div class="nl-command-input" id="nlCommandInput" style="display: none;">
+                                <div class="nl-input-header">
+                                    <span>Natural Language Command</span>
+                                    <button class="close-nl-input">×</button>
+                                </div>
+                                <input type="text" id="nlInput" placeholder="Type what you want to do in plain English...">
+                                <button class="btn btn-primary" id="translateBtn">Translate</button>
+                            </div>
+                            <div class="command-explanation" id="commandExplanation" style="display: none;">
+                                <!-- Command explanations will appear here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -313,7 +339,13 @@
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
     </script>
 
+    <!-- XTerm.js Terminal -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+
     <script src="/static/js/app.js"></script>
     <script src="/static/js/monaco-completion.js"></script>
+    <script src="/static/js/terminal.js"></script>
 </body>
 </html>
