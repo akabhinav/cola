@@ -171,10 +171,13 @@
                             </div>
                         </div>
                         <div class="editor-actions">
-                            <button class="icon-btn" title="Save">
+                            <button class="icon-btn" id="saveFileBtn" title="Save (Ctrl+S)">
                                 <i class="fas fa-save"></i>
                             </button>
-                            <button class="icon-btn" title="Download">
+                            <button class="icon-btn" id="formatCodeBtn" title="Format Code">
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button class="icon-btn" id="downloadFileBtn" title="Download">
                                 <i class="fas fa-download"></i>
                             </button>
                         </div>
@@ -186,10 +189,12 @@
                                 <!-- File tree will be populated here -->
                             </div>
                         </div>
-                        <div class="code-editor" id="codeEditor">
-                            <pre><code># Welcome to COLA Agent Platform
-
-Start by creating a new project or chatting with the AI assistant!</code></pre>
+                        <div class="monaco-editor-wrapper">
+                            <div id="monacoEditor" style="width: 100%; height: 100%;"></div>
+                            <div class="completion-status" id="completionStatus">
+                                <span class="status-indicator"></span>
+                                <span class="status-text">AI Completions: Ready</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -300,6 +305,15 @@ Start by creating a new project or chatting with the AI assistant!</code></pre>
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script>
+        // Configure Monaco loader
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+    </script>
+
     <script src="/static/js/app.js"></script>
+    <script src="/static/js/monaco-completion.js"></script>
 </body>
 </html>

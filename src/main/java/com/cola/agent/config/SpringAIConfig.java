@@ -91,4 +91,26 @@ public class SpringAIConfig {
 
         return new AnthropicChatModel(anthropicApi, options);
     }
+
+    /**
+     * Configure fast completion model using Claude Haiku for real-time inline completions.
+     * Optimized for speed (< 200ms target) with minimal tokens.
+     */
+    @Bean
+    public ChatModel fastCompletionModel() {
+        if (anthropicApiKey == null || anthropicApiKey.isEmpty()) {
+            throw new IllegalStateException("Anthropic API key is not configured.");
+        }
+
+        var anthropicApi = new AnthropicApi(anthropicApiKey);
+
+        var options = AnthropicChatOptions.builder()
+            .withModel("claude-3-haiku-20240307")  // Fastest model
+            .withTemperature(0.2)  // Low temperature for predictable completions
+            .withMaxTokens(512)     // Smaller token limit for speed
+            .withTopP(0.95)
+            .build();
+
+        return new AnthropicChatModel(anthropicApi, options);
+    }
 }
